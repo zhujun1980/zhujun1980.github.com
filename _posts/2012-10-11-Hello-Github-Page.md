@@ -7,7 +7,7 @@ category: test
 This is my first blog article.
 你好，Github Page
 
-##Code
+## Code
 	#include <iostream>
 	#include <cstdio>
 
@@ -20,3 +20,12 @@ This is my first blog article.
 		func(0);
 		return 0;
 	}
+
+### 编译
+	clang++ --std=c++11 --stdlib=libstdc++ main.cpp
+
+### 输出
+	zhujun1980@localhost:~/source/github/a$ ./a.out
+	1 0
+	10 1
+	0 3

@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Draw</title>
+</head>
+
+<!--
+1. [action]		checkin/checkout/leave
+2. [present]	busy/idle/leave
+3. [session]	call/accept/hangup
+4. [data]		send/recv
+-->
+
+<script type="text/javascript">
+var SVG = (function(mod){
+	var svg = null;
+	var xmlns="http://www.w3.org/2000/svg";
+
+	mod.init = function(svg1) {
+		svg = svg1;
+	}
+
+	mod.line = function(x1, y1, x2, y2) {
+		var l=document.createElementNS(xmlns,"line")
+		l.setAttributeNS(null,"x1", x1)
+		l.setAttributeNS(null,"y1", y1)
+		l.setAttributeNS(null,"x2", x2)
+		l.setAttributeNS(null,"y2", y2)
+		l.setAttributeNS(null,"stroke-width", 4)
+		l.setAttributeNS(null,"stroke", 'blue')
+		svg.appendChild(l)
+	}
+
+	return mod;
+})(window.mod || {});
+</script>
+
+<script type="text/javascript">
+
+function load() {
+	SVG.init(document.getElementById("svg1"));
+};
+
+var x1;
+var y1;
+var x2;
+var y2;
+
+var drawMode = false;
+
+document.onmousedown = function(ev) {
+	ev = ev || window.event; 
+	drawMode = true;
+	x1 = ev.pageX;
+	y1 = ev.pageY;
+};
+
+document.onmousemove = function(ev) {
+	ev = ev || window.event; 
+	if(drawMode == true) {
+		x2 = ev.pageX;
+		y2 = ev.pageY;
+		SVG.line(x1, y1, x2, y2);
+		x1 = x2;
+		y1 = y2;
+	}
+}
+
+document.onmouseup = function(ev) {
+	ev = ev || window.event; 
+	drawMode = false;
+};
+
+</script>
+
+<body onload='load()'>
+ 
+<svg xmlns="http://www.w3.org/2000/svg" id='svg1'>
+</svg>
+
+</body>
+</html>
+

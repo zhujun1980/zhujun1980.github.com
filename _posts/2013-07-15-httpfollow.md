@@ -17,4 +17,4 @@ comments: true
 
     httpfollow http://user:pass@www.example.com:8080/path/to/file.log -f
 
-curl也支持range，但是需要你自己记住访问到那里了，httpfollow可以帮你记住。
+curl也支持range，但是需要你自己记住访问到那里了，很麻烦，httpfollow可以帮你记住。

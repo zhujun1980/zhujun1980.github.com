@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="http://jic.gexing.com/edu/j/??jquery.min.js,jquery-ui.min.js?j13605391"></script>
 <title>Draw</title>
 </head>
 
@@ -37,11 +38,9 @@ var SVG = (function(mod){
 </script>
 
 <script type="text/javascript">
+</script>
 
-function load() {
-	SVG.init(document.getElementById("svg1"));
-};
-
+<script type="text/javascript">
 var x1;
 var y1;
 var x2;
@@ -71,14 +70,35 @@ document.onmouseup = function(ev) {
 	ev = ev || window.event; 
 	drawMode = false;
 };
-
 </script>
 
-<body onload='load()'>
- 
+<body>
+<!--
+<button id="butRecord" value="record" type="button"> Record </button> <button id='butStop' value="stop" type="button" disabled=true> Stop </button> 
+-->
 <svg xmlns="http://www.w3.org/2000/svg" id='svg1'>
 </svg>
 
 </body>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	SVG.init(document.getElementById("svg1"));
+
+	$("button").click(function() {
+		var act = $(this).val();
+		switch(act) {
+		case "record":
+			$("#butStop").prop('disabled', false);
+			$(this).prop('disabled', true);
+			break;
+		case "stop":
+			$("#butRecord").prop('disabled', false);
+			$(this).prop('disabled', true);
+			break;
+		}
+	});
+});
+</script>
 </html>
 

@@ -23,6 +23,7 @@ PS. 在线教育真是太好了，足不出户就学习到全世界最好大学�
 
 ###并行开发
 * [异构并行编程](https://www.coursera.org/course/hetero) (Coursera)：看课程介绍好像CUDA讲的比较多。
+* [hebel: GPU-Accelerated Deep Learning Library in Python](https://github.com/hannes-brt/hebel)
 
 ###工具和框架
 * [Pig vs mapreduce](http://blog.mortardata.com/post/60274287605/pig-vs-mapreduce)
@@ -34,7 +35,9 @@ PS. 在线教育真是太好了，足不出户就学习到全世界最好大学�
 * [hadoop](http://blog.fens.me/series-hadoop-family/)
 
 ###Python
+
 * [Getting Started With Python For Data Science](https://www.kaggle.com/wiki/GettingStartedWithPythonForDataScience)
+* [Learn Data Science](http://learnds.com/)
 * [scipy讲座](http://scipy-lectures.github.io/)
 * [D3/IPython](https://www.authorea.com/users/3/articles/3904/_show_article)
 * [Data science in python](http://blog.yhathq.com/posts/data-science-in-python-tutorial.html)
@@ -44,6 +47,7 @@ PS. 在线教育真是太好了，足不出户就学习到全世界最好大学�
 ###R语言
 * [数据分析计算](https://www.coursera.org/course/compdata) (Coursera)：该课程纯粹讲R语言，从语法讲起，但有点枯燥。
 * [Getting Started with R](http://trevorstephens.com/post/72916401642/titanic-getting-started-with-r)
+* [互动方式学习R](https://www.datacamp.com/)
 
 ###机器学习概念
 * [Re-Ranking](http://dataiku.com/blog/2014/01/14/winning-kaggle.html)
@@ -52,8 +56,14 @@ PS. 在线教育真是太好了，足不出户就学习到全世界最好大学�
 * [精通数据科学](https://github.com/datasciencemasters/go/)
 * [机器学习自学](http://machinelearningmastery.com/self-study-guide-to-machine-learning/)
 * [交互式机器学习](http://iml.media.mit.edu/)
+* [Visualizing k means clustering](http://www.naftaliharris.com/blog/visualizing-k-means-clustering/)
 
 ###深度学习
+* [DL的Reading List](http://www.iro.umontreal.ca/~lisa/twiki/bin/view.cgi/Public/ReadingOnDeepNetworks)
+* [DL.net上的RL2](http://deeplearning.net/reading-list/)
+* [Hinton的RL](http://www.cs.toronto.edu/~hinton/deeprefs.html)
+* [Hinton的A tutorial on Deep Learning](http://videolectures.net/jul09_hinton_deeplearn/)
+* [UFLDL教程](http://deeplearning.stanford.edu/wiki/index.php/UFLDL%E6%95%99%E7%A8%8B)
 * [Deep Learning Tutorial](http://deeplearning.net/tutorial/)
 * [General Guidelines for deep neural networks](http://343hz.com/general-guidelines-for-deep-neural-networks/)
 * [Deep Learning In NLP](http://licstar.net/archives/328)

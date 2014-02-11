@@ -39,6 +39,7 @@ PS. 在线教育真是太好了，足不出户就学习到全世界最好大学�
 * [Deep Learning and Neural Networks](http://cl.naist.jp/~kevinduh/a/deep2014/)
 * [UFLDL中文教程](http://deeplearning.stanford.edu/wiki/index.php/UFLDL%E6%95%99%E7%A8%8B)
 * [UFLDL英文](http://ufldl.stanford.edu/tutorial/index.php/UFLDL_Tutorial)
+* [UFLDL wiki](http://ufldl.stanford.edu/wiki/index.php/UFLDL_Tutorial) 有个很不错的推荐读物
 * [Deep Learning Tutorial](http://deeplearning.net/tutorial/)
 * [General Guidelines for deep neural networks](http://343hz.com/)
 * [Deep Learning 101](http://markus.com/deep-learning-101/)

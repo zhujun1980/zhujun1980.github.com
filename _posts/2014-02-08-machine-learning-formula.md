@@ -80,5 +80,24 @@ z^\{(l)\} = \Theta^\{(l-1)\}a^\{(l-1)\} \\\
 a^\{(l)\} = g\left(z^\{(l)\}\right) \quad \left(\text\{add $a_0^\{(l)\}$\}\right)
 \end{aligned}\\]
 
----
+#Softmax Regression
+###Hypothesis function
 
+\\[\begin{aligned} 
+h\_\theta(x) = \begin{bmatrix} \\\
+P(y = 1 | x; \theta) \\\ P(y = 2 | x; \theta) \\\ \vdots \\\ P(y = K | x; \theta) 
+\end{bmatrix} = \frac{1}{ \sum_{j=1}^{K}{\exp(\theta^{(j)\top} x) }} \begin{bmatrix} \exp(\theta^{(1)\top} x ) \\\ \exp(\theta^{(2)\top} x ) \\\ \vdots \\\ \exp(\theta^{(K)\top} x ) \\\ \end{bmatrix} 
+\end{aligned}\\]
+
+###Cost function
+
+\\[\begin{aligned}
+J(\theta) = \- \left[ \sum\_\{i=1\}^\{m\} \sum\_\{k=1\}^{K} 1\left\\{y^\{(i)\} = k\right\\}\log\frac{\exp(\theta^{(k)\top} x^{(i)})}{\sum_{j=1}^K \exp(\theta^{(j)\top} x^{(i)})} \right] \end{aligned}\\]
+
+###Gradient
+
+\\[\begin{align} 
+\nabla\_{\theta^{(k)}} J(\theta) = - \sum_{i=1}^{m}{ \left[ x^{(i)} \left( 1\\{ y^{(i)} = k\\} - P(y^{(i)} = k | x^{(i)}; \theta) \right) \right] } 
+ \end{align} \\]
+
+---

@@ -81,6 +81,7 @@ a^\{(l)\} = g\left(z^\{(l)\}\right) \quad \left(\text\{add $a_0^\{(l)\}$\}\right
 \end{aligned}\\]
 
 #Softmax Regression
+
 ###Hypothesis function
 
 \\[\begin{aligned} 

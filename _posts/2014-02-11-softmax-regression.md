@@ -81,6 +81,8 @@ Softmax regression最后得到$$K$$个参数列表，即$$\Theta$$是个$$N * K$
       g=g(:); % make gradient a vector for minFunc
     end
 
+在MINST这个手写数字数据集中，Softmax的Test accuracy大约是92.1%，属于underfitting（欠拟合）.
+
 ###One-vs-all和softmax regression
 在构建一个多元分类器时，如何选择算法，究竟是使用one-vs-all，还是使用softmax regression呢？这取决于你的分类是否互斥。比如进行手写数字识别，那么就应该使用softmax regression，因为一个手写数字只能是10个数字中一个确定的值，不可能同时是多个值。但如果进行图片分类，那么就可以使用one-vs-all，一张图片可以是包含人物的照片，也可以是室内照片等等。
 

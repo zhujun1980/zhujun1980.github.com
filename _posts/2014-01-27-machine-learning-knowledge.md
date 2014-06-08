@@ -46,6 +46,7 @@ PS. 在线教育真是太好了，足不出户就学习到全世界最好大学�
 * [深度学习整理笔记](http://blog.csdn.net/zouxy09/article/details/8775360)
 * [Deep Learning In NLP](http://licstar.net/archives/328)
 * [Deep Learning In NLP Tutroial](http://www.socher.org/index.php/DeepLearningTutorial/DeepLearningTutorial)
+* [Deep Learning text book by Bengio](http://www.iro.umontreal.ca/~bengioy/dlbook/)
 
 ###并行开发
 * [异构并行编程](https://www.coursera.org/course/hetero) (Coursera)：看课程介绍好像CUDA讲的比较多。

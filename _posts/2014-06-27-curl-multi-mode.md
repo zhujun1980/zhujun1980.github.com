@@ -14,7 +14,7 @@ comments: true
 > 把页面中的 http 请求异步化，使它们可以并行执行，以节省脚本运行时间。
 
 ##串行方式
-将请求并行执行并不困难，使用 curl 提供的 __multi__ 族方法就可以实现，网上有很多类似的 post 来介绍使用方法。但这只是优化工作中很小的一部分，因为目前我们使用的 php 框架对于 http 调用的连接、发送、接受及后续处理都是串行完成，而这些都被封装到一系列复杂的类中，在 controler 层只要用一行代码就可以调用 API 相应的方法并拿到 __返回结果__ :
+将请求并行执行并不困难，使用 curl 提供的 __multi__ 族方法就可以实现，网上有很多类似的 post 来介绍使用方法。但这只是优化工作中很小的一部分，因为目前我们使用的 php 框架对于 http 调用的连接、发送、接受及后续处理都是串行完成，而这些都被封装到一系列复杂的类中，在 controller 层只要用一行代码就可以调用 API 相应的方法并拿到 __返回结果__ :
 
 	$userInfo = $this->apiProxy->general->getUserInfo($uid); //调用 api
 	echo $userInfo['rst']['username']; //使用结果
@@ -29,7 +29,7 @@ comments: true
 
 > In programming language theory, lazy evaluation, or call-by-need[1] is an evaluation strategy which delays the evaluation of an expression until its value is needed (non-strict evaluation) and which also avoids repeated evaluations (sharing).
 
-Lazy evaluation 是编程语言设计领域中的一个 _表达式求值_ 策略，它延缓对表达式的求值直到你需要它的时候。看上去 lazy evaluation 好像和我们的问题挨不上边，而且 php 也不支持 lazy evaluation，不过仔细想一下，如果我们能把对 http 请求的 _后续操作_ 延缓到对 _返回结果_ 的使用时，就可以用一种 优雅 的实现来使框架支持并行执行，而且对于 controler 层的改动也非常的小。
+Lazy evaluation 是编程语言设计领域中的一个 _表达式求值_ 策略，它延缓对表达式的求值直到你需要它的时候。看上去 lazy evaluation 好像和我们的问题挨不上边，而且 php 也不支持 lazy evaluation，不过仔细想一下，如果我们能把对 http 请求的 _后续操作_ 延缓到对 _返回结果_ 的使用时，就可以用一种 优雅 的实现来使框架支持并行执行，而且对于 controller 层的改动也非常的小。
 
 具体点说就是在进行 api 调用的时候，返回一个 _句柄_，而不返回结果数组，这个句柄标识了一个被提交到后台的请求，它可能已经完成了，也可能未完成，你不再关心它，由 curl 替你完成，你的代码可以继续往下执行，去完成其他的业务逻辑。而当我们需要这个结果时，去检查这个句柄是否已经完成，如果已经完成则执行上面 __接受结果__ 之后的所有操作，返回结果。那么上面的代码重构后变成：
 
@@ -54,7 +54,7 @@ async_ 前缀表示使用异步来调用 api 。上面代码中，在调用 api 
 	public void offsetSet ( mixed $index , mixed $newval )
 	public void offsetUnset ( mixed $index )
 
-有了这个类的帮助，方案就明确了，我们返回的 object 继承于 ArrayObject ，并覆盖这 4 个方法，在覆盖的方法内去检查 http 请求是否完成并获取结果；而 controler 层对于结果的使用几乎不用改变，仍然按照数组方式使用。就是说什么时候使用结果，什么时候才去检查 curl。
+有了这个类的帮助，方案就明确了，我们返回的 object 继承于 ArrayObject ，并覆盖这 4 个方法，在覆盖的方法内去检查 http 请求是否完成并获取结果；而 controller 层对于结果的使用几乎不用改变，仍然按照数组方式使用。就是说什么时候使用结果，什么时候才去检查 curl。
 
 我们的返回句柄类命名为 __AsyncHandler__ ，它定义为：
 

@@ -7,21 +7,19 @@ comments: true
 ---
 {% include JB/setup %}
 
-##问题起因
+##优化目标
 
-我所在的产品线大量使用了 http api ，可以说代码中随处可见 http 调用，比如一个最重要的页面，一次调用将会产生 __7~8__ 次 http 接口请求，当然每个接口已经被优化的非常快了，但是 8 次累加起来的消耗还是相当可观的。所以我最近一直在作一项优化工作：
+在我现在所在的产品线中 http 接口被大量使用，用来获取各种开放数据，可以说 http 调用在代码中随处可见。比如一个访问最频繁的页面，一次请求将会产生 __7~8__ 次 http 调用。虽然每个接口都非常的快，但 8 次累加起来的消耗还是相当的可观，所以我最近的优化工作主要是：
 
-> 把页面中的 http 请求异步化，使它们可以并行执行，以节省脚本运行时间。
+> 并行调用各 http 请求，以缩短脚本的运行时间。
 
-##串行方式
-将请求并行执行并不困难，使用 curl 提供的 __multi__ 族方法就可以实现，网上有很多类似的 post 来介绍使用方法。但这只是优化工作中很小的一部分，因为目前我们使用的 php 框架对于 http 调用的连接、发送、接受及后续处理都是串行完成，而这些都被封装到一系列复杂的类中，在 controller 层只要用一行代码就可以调用 API 相应的方法并拿到 __返回结果__ :
+##重构起因
+实际上，将请求并行化并不十分困难，使用 curl 提供的 __multi*__ 方法族就可以实现，网上有很多类似的文章来介绍其使用方法，大致的思想是把多个 curl 句柄放入一个 curl multi_handler 中，以 nonblocking 的方式执行，然后使用内核提供的 IO 复用机制（select/epoll等）进行事件查询，当有 response 返回时处理结果。很明显这是一个异步的过程，而在我们现在用的 php 框架中对于 http 调用则是同步的，建立连接、发送请求、接受响应和处理结果都是串行完成的，这些操作都被封装到一系列类中，使得上层只用一行代码就可以完成 API 的调用并获得 __返回结果__ ，例如:
 
 	$userInfo = $this->apiProxy->general->getUserInfo($uid); //调用 api
 	echo $userInfo['rst']['username']; //使用结果
 
-返回值 `userInfo`是个 __数组__ ，包含了调用方感兴趣的所有数据。请看第一行代码，虽然只有一行，但是框架默默帮你做了大量的工作，其中包括：连接、发送请求、接受结果，检查 state 、错误处理、格式化输出、写缓存等等，而且具体到每个 api 对于返回值的处理还有不同的操作，如果要支持并行执行，那么就必须打破这个串行流程，所有后续的操作都要在结果返回之后才能执行。实际上 __接受结果__ 之后的所有操作都要等到 http response 返回以后才能进行。
-
-在这个有 4~5 年的历史，有着上千个文件的 php 框架内，如何用一种优雅的方式对它进行重构，既能符合要求完成功能，又能保证改动量最小，把受影响的范围减到最小，成为了现在最重要的问题。
+上面的返回值 `userInfo`是个 __数组__ ，包含了调用方感兴趣的所有数据。虽然只有 2 行，但是框架默默帮你做了大量的工作，其中包括：建立连接、发送请求、接受结果，检查状态 、处理错误、格式化输出、写缓存等等，而且具体到每个 api 对于返回值的处理还有不同的逻辑。如何用一种优雅的方式对现有框架进行重构，既能符合要求，又能保证改动量最小，成为了现在最重要的问题。
 
 ##Lazy evaluation
 
@@ -29,9 +27,9 @@ comments: true
 
 > In programming language theory, lazy evaluation, or call-by-need[1] is an evaluation strategy which delays the evaluation of an expression until its value is needed (non-strict evaluation) and which also avoids repeated evaluations (sharing).
 
-Lazy evaluation 是编程语言设计领域中的一个 _表达式求值_ 策略，它延缓对表达式的求值直到你需要它的时候。看上去 lazy evaluation 好像和我们的问题挨不上边，而且 php 也不支持 lazy evaluation，不过仔细想一下，如果我们能把对 http 请求的 _后续操作_ 延缓到对 _返回结果_ 的使用时，就可以用一种 优雅 的实现来使框架支持并行执行，而且对于 controller 层的改动也非常的小。
+Lazy evaluation 是编程语言设计领域中的一个 _表达式求值_ 策略，它延缓对表达式的求值直到你需要它的时候。看上去 lazy evaluation 好像和我们的问题挨不上边，而且 php 也不支持 lazy evaluation，不过仔细想一下，如果我们能把对 http 请求的 _后续操作_ 延缓到对 _返回结果的使用_ 时，就可以用一种 优雅 的实现来使框架支持并行执行，而且对于 controller 层的改动也非常的小。
 
-具体点说就是在进行 api 调用的时候，返回一个 _句柄_，而不返回结果数组，这个句柄标识了一个被提交到后台的请求，它可能已经完成了，也可能未完成，你不再关心它，由 curl 替你完成，你的代码可以继续往下执行，去完成其他的业务逻辑。而当我们需要这个结果时，去检查这个句柄是否已经完成，如果已经完成则执行上面 __接受结果__ 之后的所有操作，返回结果。那么上面的代码重构后变成：
+具体点说就是在进行 api 调用的时候，不再返回结果数组，而是返回一个 _句柄_，这个句柄标识了一个被提交到后台的请求，它被加入到 curl multi_handler 中，你不再关心它，由 curl 替你完成，你的代码可以继续往下执行，去完成其他的业务逻辑。而当我们需要这个结果时，检查这个句柄是否已经完成，如果已经完成则执行上面 __接受结果__ 之后的所有操作，返回结果。那么上面的代码重构后变成：
 
 	$userInfo = $this->apiProxy->async_general->getUserInfo($uid); //使用 curl 异步调用
 	//
@@ -43,26 +41,28 @@ async_ 前缀表示使用异步来调用 api 。上面代码中，在调用 api 
 
 ##ArrayObject
 
-显然，如果我们使用上述的逻辑来处理整个异步流程，那返回值就不能是个 __array__ 而必须是个 __object__ ，因为数组的可操作性非常有限，没有办法执行代码逻辑， __object__ 则提供了更大的灵活性，那 object 是否可以像数组一样被使用呢？经过一番搜索，php 里还真有这样的东西，它就是 SPL(Standard PHP Library) 提供的 [__ArrayObject__](http://jp1.php.net/manual/en/class.arrayobject.php) 类，这个类的介绍简单明了：
+显然接口调用的返回值必须是个 __object__ 而不能再是个 __array__ ，因为数组的可操作性有限，不能执行逻辑， __object__ 则提供了更大的灵活性，但在原有代码中 array 已经被大量应用，把它们逐个改为 object 是很不现实的，那么 object 是否可以像数组一样被使用呢？经过一番搜索，我发现 php 里还真有这样的东西，它就是 SPL(Standard PHP Library) 提供的 [__ArrayObject__](http://jp1.php.net/manual/en/class.arrayobject.php) 类，这个类的介绍简单明了：
 
 > This class allows objects to work as arrays.
 
-正好是我们需要的，ArrayObject 主要通过下面 4 个方法提供对数组的支持（其实它是通过继承 [__ArrayAccess__ 接口](http://jp1.php.net/manual/en/class.arrayaccess.php)来实现的）：
+正好是我们需要的。
+
+ArrayObject 主要通过下面 4 个方法提供对数组的支持（实际上它是通过实现 [__ArrayAccess__](http://jp1.php.net/manual/en/class.arrayaccess.php)接口来实现的）：
 
 	public bool offsetExists ( mixed $index )
 	public mixed offsetGet ( mixed $index )
 	public void offsetSet ( mixed $index , mixed $newval )
 	public void offsetUnset ( mixed $index )
 
-有了这个类的帮助，方案就明确了，我们返回的 object 继承于 ArrayObject ，并覆盖这 4 个方法，在覆盖的方法内去检查 http 请求是否完成并获取结果；而 controller 层对于结果的使用几乎不用改变，仍然按照数组方式使用。就是说什么时候使用结果，什么时候才去检查 curl。
+有了这个类的帮助，我们的方案就明确了，思路就是：返回的 object 继承于 ArrayObject ，并覆盖这 4 个方法，在覆盖的方法内检查 http 请求是否完成并获取结果；而 controller 层对于结果的使用几乎不用改变，仍然按照数组方式使用。
 
-我们的返回句柄类命名为 __AsyncHandler__ ，它定义为：
+我们把返回的句柄类命名为 __AsyncHandler__ ，它的定义为：
 
 	class AsyncHandler extends ArrayObject
 
 ##事件回调
 
-到目前为止，一切都非常的顺利，但是还有一个重要的问题没有解决，那就是对 http response 的处理，就像前面所说的，原有的方法是串行执行，直接返回处理过的结果，而现在只返回一个对象，结果还不知道什么时候能取到呢，这些处理代码显然应该等到 http response 确定返回的时候才能执行，这时就要使用回调来实现了，通过对代码的分析，发现有主要 3 处代码对结果进行了处理，一处在 http response 刚返回时，此处做了 http 状态值的检查、日志记录等基本操作，这部分是公共的代码；另外一处在接口自身的函数内，做了接口特有的处理，这部分是每个接口一份；最后一处是在把结果返回给调用方之前，对结果做格式化，保存缓存等，这部分也是公共的代码。通过总结出处理的类型，我们对如何修改就胸有成竹了：
+到目前为止，一切都非常的顺利，但是还有一个重要的问题没有解决，那就是对 http response 的处理，就像前面所说的，原有的串行方法，直接返回处理过的结果，而现在只返回一个对象，结果还不知道什么时候能取到呢，这些处理代码显然应该等到 http response 确定返回的时候才能执行，这时就要使用回调来实现了，通过对代码的分析，发现有主要 3 处对结果进行处理的代码，一处在 http response 返回时，此处做了 http 状态值的检查、日志记录等基本操作，这部分是公共的代码；另外一处在接口自身的函数内，做了接口特有的处理，这部分是每个接口一份；最后一处是在把结果返回给调用方之前，对结果做格式化，保存缓存等，这部分也是公共的代码。通过总结出类型，我们对如何修改就胸有成竹了：
 
 首先，在 AsyncHandler 的中定义 3 个回调函数：
 
@@ -118,7 +118,7 @@ mhttp 是对 curl 功能的封装，它保存 http 链接的基本信息，创�
 
 ##获取结果
 
-我们再来看一下获取结果的流程，先看一下 AsyncHandler 的 offsetGet 方法：
+最后，我们看一下获取结果的流程，先看一下 AsyncHandler 的 offsetGet 方法：
 
 	public function offsetGet($index) {
 		if(!$this->finished) async_http::in()->wait((string)$this);
@@ -178,16 +178,12 @@ RequestCompeleted 方法获取返回结果，调用回调函数，保存结果�
 
 ##使用提示
 
-对于希望改成异步调用的 api ，调用方只要加一个 async_ 前缀，就可以使用异步模式调用 api 了。但是这样的改动并不能够体现异步的优势，使用异步调用的初衷是为了节省耗时操作的等待时间，在等待时可以进行其他的操作。对于调用方，如果确定使用异步模式来调用一个 api ，就需要把耗时的 api 尽可能的前置调用，而对返回结果的使用则尽可能的后置，这就和具体的业务紧密相关了，需要你对业务非常的熟悉才能完成。相反的，如果你异步调用一个 api 之后马上就使用它的结果，那其实和同步没有区别，不会带来任何性能的提升，而且因为它是通过轮询来确定是否完成，甚至可能还会更慢。
-
-这一点在测试中已经被验证了：分别用同步和异步模式调用 3 个 api ，均是调用完成后马上获取结果，则它们的运行时间差别不大，都在一个均值范围内浮动；但是如果我在调用 api 和获取结果之间加上一个 `sleep(1)` 模拟一个耗时操作，那么异步模式要比同步模式快至少 15 ms。
-
-最后还有一点需要注意，AsyncHandler 只是个 object，虽然可以作为数组一样使用，但是如果你使用 `is_array` 对它进行测试，那还是会返回 false 的。
+对于希望改成并行调用的多个 api ，调用方只要给它们加上 async_ 前缀，并把它们放在一起，就可以并行调用了。最后还有一点，AsyncHandler 只是个 object，虽然可以作为数组一样使用，但是对于 `is_array` 还是会返回 false 的。
 
 ##总结
 
-本文提供了一种在已有框架下增加异步模式的设计方法，也许你使用其他的框架或者不使用框架，但是相信这种方法也可以给你一些关于异步模式的启发。
+本文提供了一种在已有框架下增加异步模式的设计方法，对于想要引入并行调用的朋友，希望这种方法能带来一些帮助。
 
 ##代码
 
-这是 AsyncHandler.php 和 async_http.class.php 的[代码](https://gist.github.com/zhujun1980/ae0d077cd7c0f3c304a3)，curl_http 类就是对 curl 功能的封装，就不再上传了。
+AsyncHandler.php 和 async_http.class.php 的[代码](https://gist.github.com/zhujun1980/ae0d077cd7c0f3c304a3)，curl_http 类就是对 curl 功能的封装，就不再上传了，其他的代码因为和业务参考意义不大，而且也不方便上传。

@@ -1,5 +1,5 @@
 ---
-title: 记一次重构：使用 curl 异步调用接口
+title: 记一次重构：并行化调用接口实践
 layout: post
 tags: php 编程实践
 category: 编程实践

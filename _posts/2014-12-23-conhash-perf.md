@@ -7,7 +7,7 @@ comments: true
 ---
 {% include JB/setup %}
 
-最近在做一项线上服务的优化：一组使用一致性哈希进行散列的资源，请求分配的非常不均匀，不同资源之间的负载差别达到一倍以上。对此我写了个测试程序来检测一致性哈希的散列情况，[代码在这里](https://gist.github.com/zhujun1980/7e907705ab61a3e71a7b)，一致性哈希算法使用[库libconhash](http://www.codeproject.com/Articles/56138/Consistent-hashing)，它使用red-black tree进行存储。
+最近在做一项线上服务的优化：一组使用一致性哈希进行散列的资源，请求分配的非常不均匀，不同资源之间的负载差别达到一倍以上。对此我写了个测试程序来检测一致性哈希的散列情况，[代码在这里](https://gist.github.com/zhujun1980/7e907705ab61a3e71a7b)，一致性哈希算法使用[库libconhash](http://www.codeproject.com/Articles/56138/Consistent-hashing)，它使用red-black tree进行存储。
 
 进行1亿次随机数查询，一致性哈希节点node数量由size变量进行控制，虚拟节点vnode数量由conhash_set_node的第三个参数replicas控制，大致的测试结果如下
 

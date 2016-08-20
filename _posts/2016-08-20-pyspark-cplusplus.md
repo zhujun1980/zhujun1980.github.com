@@ -7,7 +7,7 @@ comments: true
 ---
 {% include JB/setup %}
 
-<img src="/assets/cplus_spark.jpg" alt="spark c++" style="width:600;height:300">
+<img src="/assets/cplus_spark.jpg" alt="spark c++" style="width:600;height:301">
 
 这几年Spark以其高性能和使用方便等诸多优点获得越来越多人的关注。从使用的角度来看，Spark的学习曲线要比Hadoop更加平缓，一个普通工程师用一到两周时间把官方的programming-guide过一遍就能干活，这其中主要归功于Spark对于Python的良好支持，毕竟相较于Scala、Java和R来说Python更容易上手。
 

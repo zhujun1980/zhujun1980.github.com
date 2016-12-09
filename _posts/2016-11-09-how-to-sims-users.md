@@ -73,3 +73,10 @@ comments: true
 #### 总结
 
 这种方法基于行为来分析用户的口味，然后找出口味相似的用户，本质上也是协同过滤。除了计算相似用户，它还有其他的用法，比如把某类用户（topic分布大于阈值）都爱看的文章聚合起来，作为该类用户的召回，就是一个很不错的思路。
+
+#### 参考
+
+* Measuring Personalization of Web Search
+* It is not just what we say, but how we say them- LDA-based behavior-topic model
+* Analyzing User Modeling on Twitter for Personalized News Recommendations
+* An Exploration of Improving Collaborative Recommender Systems via User-Item Subgroups

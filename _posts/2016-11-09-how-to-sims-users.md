@@ -66,7 +66,7 @@ comments: true
 
 现在我们的问题对标到一个成熟的模型上了，下面的工作就是训练出一个Topic Model，这一步我就不详细介绍了，方法太多了。但说明一点，我们的历史统计值是个小数，而LDA里面需要一个整数（一般表示词频），所以我们做了一个转换，把小数映射到整数范围，保证可以正常工作，这个转换函数根据不同业务有不同的定义，需要观察数据进行调参。
 
-<img src="/assets/users_topics.png" alt="" style="width:650;height:301">
+<img src="/assets/users_topics.jpg" alt="" style="width:650;height:301">
 
 #### 如何计算相似
 

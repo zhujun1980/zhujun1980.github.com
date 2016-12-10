@@ -1,5 +1,5 @@
 ---
-title: 怎么计算相似用户
+title: 怎样计算相似用户
 layout: post
 tags: 算法
 category: 算法
